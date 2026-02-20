@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSentry X — AI-Powered Threat Intelligence</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <canvas id="particles"></canvas>
+    <div class="scan-lines"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo-badge">
+                <svg class="shield-svg" viewBox="0 0 100 120" width="70" height="84">
+                    <defs>
+                        <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00ffaa" />
+                            <stop offset="100%" stop-color="#00e5ff" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <path d="M50 5 L90 25 L90 60 Q90 95 50 115 Q10 95 10 60 L10 25 Z" fill="none" stroke="url(#sg)"
+                        stroke-width="2.5" filter="url(#glow)" />
+                    <path d="M50 20 L35 40 L40 40 L40 55 L30 55 L50 80 L70 55 L60 55 L60 40 L65 40 Z" fill="url(#sg)"
+                        opacity="0.7" />
+                    <line x1="25" y1="35" x2="40" y2="45" stroke="#00ffaa" stroke-width="0.5" opacity="0.3" />
+                    <line x1="75" y1="35" x2="60" y2="45" stroke="#00e5ff" stroke-width="0.5" opacity="0.3" />
+                    <circle cx="25" cy="35" r="2" fill="#00ffaa" opacity="0.5" />
+                    <circle cx="75" cy="35" r="2" fill="#00e5ff" opacity="0.5" />
+                    <circle cx="50" cy="95" r="2" fill="#00ffaa" opacity="0.4" />
+                </svg>
+                <div class="radar-ring"></div>
+            </div>
+            <h1 class="title">CYBERSENTRY <span class="x">X</span></h1>
+            <p class="tagline">AI-Powered Threat Intelligence Platform</p>
+        </header>
+
+        <!-- LIVE STATS -->
+        <div class="live-bar">
+            <div class="stat-chip"><span class="dot green"></span>Modules <b>9</b></div>
+            <div class="stat-chip"><span class="dot cyan"></span>APIs <b>5</b></div>
+            <div class="stat-chip"><span class="dot purple"></span>Ports <b>17</b></div>
+            <div class="stat-chip"><span class="dot orange"></span>Headers <b>7</b></div>
+        </div>
+
+        <!-- SCANNER -->
+        <section class="scanner">
+            <label class="prompt-label"><span class="caret">▶</span> initialize_target_scan</label>
+            <div class="input-box">
+                <div class="input-glow"></div>
+                <div class="input-row">
+                    <span class="prefix">~/scan$</span>
+                    <input id="url" type="text" placeholder="enter target URL or domain..." spellcheck="false"
+                        autocomplete="off">
+                    <button id="scan-btn" onclick="startScan()">
+                        <span class="btn-txt">⚡ SCAN NOW</span>
+                        <span class="btn-spin"></span>
+                    </button>
+                </div>
+            </div>
+            <div id="error" class="error-msg"></div>
+        </section>
+
+        <!-- TERMINAL -->
+        <div id="term" class="terminal hidden">
+            <div class="term-bar"><span class="td r"></span><span class="td y"></span><span class="td g"></span><span
+                    class="term-title">cybersentry-x — scan.log</span></div>
+            <div id="term-body" class="term-body">
+                <div class="pbar">
+                    <div id="pfill" class="pfill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="results" class="results hidden">
+            <!-- Metrics Row -->
+            <div class="metrics" id="metrics"></div>
+
+            <!-- Risk Gauge -->
+            <div class="gauge-panel" id="gauge-panel">
+                <div class="gauge-circle">
+                    <svg viewBox="0 0 150 150" class="gauge-svg">
+                        <circle cx="75" cy="75" r="68" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="5" />
+                        <circle id="gauge-arc" cx="75" cy="75" r="68" fill="none" stroke="#00ffaa" stroke-width="5"
+                            stroke-linecap="round" stroke-dasharray="427" stroke-dashoffset="427"
+                            transform="rotate(-90 75 75)" />
+                    </svg>
+                    <div class="gauge-center">
+                        <div id="g-grade" class="g-grade">A</div>
+                        <div id="g-score" class="g-score">0/100</div>
+                    </div>
+                </div>
+                <div id="g-label" class="g-label">Secure</div>
+                <div id="g-meta" class="g-meta"></div>
+            </div>
+
+            <!-- World Map -->
+            <div class="map-panel" id="map-panel">
+                <div class="section-hdr"><span class="sh-icon">🌍</span><span class="sh-text">Threat Geolocation</span>
+                </div>
+                <div class="world-map" id="world-map">
+                    <div class="map-wrap">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1280px-World_map_-_low_resolution.svg.png"
+                            class="map-img" alt="World map">
+                        <div class="map-marker hidden" id="map-marker">
+                            <div class="map-pin"></div>
+                            <div class="map-pulse"></div>
+                            <div class="map-pulse delay"></div>
+                        </div>
+                    </div>
+                    <div id="map-info" class="map-info">📡 Run a scan to see target geolocation</div>
+                </div>
+            </div>
+
+
+            <!-- Domain Intelligence -->
+            <div class="section-hdr"><span class="sh-icon ph">🧠</span><span class="sh-text">Domain Intelligence
+                    Report</span></div>
+            <div class="card-grid" id="ph-cards"></div>
+
+            <!-- Network -->
+            <div class="section-hdr"><span class="sh-icon net">🌐</span><span class="sh-text">Network
+                    Infrastructure</span></div>
+            <div class="card-grid" id="net-cards"></div>
+
+            <!-- Vulnerability -->
+            <div class="section-hdr"><span class="sh-icon vul">🔬</span><span class="sh-text">Vulnerability
+                    Intelligence</span></div>
+            <div class="card-grid" id="vul-cards"></div>
+
+            <!-- Threat Modeling -->
+            <div class="section-hdr"><span class="sh-icon tm">⚔️</span><span class="sh-text">Threat Model &amp; Attack
+                    Surface</span></div>
+            <div id="tm-overview" class="tm-overview"></div>
+            <div class="card-grid" id="tm-cards"></div>
+
+            <!-- Activity Feed -->
+            <div class="section-hdr"><span class="sh-icon feed">📡</span><span class="sh-text">Real-Time Activity
+                    Feed</span></div>
+            <div class="feed-panel" id="feed-panel"></div>
+        </div>
+
+        <!-- HOLOGRAPHIC ACCENTS -->
+        <div class="holo holo1"></div>
+        <div class="holo holo2"></div>
+
+        <footer class="footer"><span class="brand">CYBERSENTRY X</span> v2.0 — AI-Powered Threat
+            Intelligence<br>VirusTotal · Shodan · AbuseIPDB · Google Safe Browsing</footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
