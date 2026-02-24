@@ -1,4 +1,5 @@
 aiohttp==3.11.18
+gunicorn==25.1.0
 cirq==1.5.0.dev20240712174048
 cirq_core==1.5.0.dev20240712174048
 dnspython==2.7.0
@@ -27,3 +28,4 @@ whois==1.20240129.2
 xgboost==1.6.2
 ydata_profiling==4.8.3
 python-dotenv==1.1.1
+
